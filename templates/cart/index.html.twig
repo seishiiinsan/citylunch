@@ -1,0 +1,141 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon panier — CityLunch{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-800 mb-0" style="font-size:1.6rem">Mon panier</h1>
+            <p class="text-muted small mb-0">{{ cart.countItems() }} article{{ cart.countItems() > 1 ? 's' : '' }}</p>
+        </div>
+        <a href="{{ path('app_menu') }}" class="btn btn-outline-cl btn-sm px-3">
+            <i class="bi bi-arrow-left me-1"></i>Continuer mes achats
+        </a>
+    </div>
+
+    {% if cart.items is empty %}
+        <div class="text-center py-5">
+            <div style="font-size:4rem">🛍️</div>
+            <p class="lead mt-3 fw-semibold">Votre panier est vide</p>
+            <p class="text-muted small mb-4">Découvrez nos plats et desserts du jour.</p>
+            <a href="{{ path('app_menu') }}" class="btn btn-primary-cl px-4">
+                <i class="bi bi-grid me-1"></i>Voir le menu
+            </a>
+        </div>
+    {% else %}
+        <div class="row g-4 align-items-start">
+
+            {# ── Liste des articles ── #}
+            <div class="col-lg-8">
+                <div class="card border-0" style="border-radius:var(--cl-radius-lg);box-shadow:var(--cl-shadow)">
+                    <div class="card-body p-0">
+                        <table class="table cart-table mb-0 align-middle">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4 py-3">Produit</th>
+                                    <th class="text-center py-3">Prix unit.</th>
+                                    <th class="text-center py-3">Qté</th>
+                                    <th class="text-center py-3">Sous-total</th>
+                                    <th class="pe-4 py-3"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in cart.items %}
+                                    <tr>
+                                        <td class="ps-4 py-3">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="rounded-2 d-flex align-items-center justify-content-center flex-shrink-0"
+                                                     style="width:40px;height:40px;background:var(--cl-primary-pale);font-size:1.2rem">
+                                                    {{ item.product.type == 'plat' ? '🍽' : '🍮' }}
+                                                </div>
+                                                <div>
+                                                    <div class="fw-600" style="font-size:.9rem">{{ item.product.name }}</div>
+                                                    <span class="type-pill {{ item.product.type }}" style="font-size:.65rem">
+                                                        {{ item.product.type == 'plat' ? 'Plat' : 'Dessert' }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center text-muted" style="font-size:.9rem">
+                                            {{ item.product.priceFormatted }}
+                                        </td>
+                                        <td class="text-center" style="width:150px">
+                                            <form method="post"
+                                                  action="{{ path('app_cart_update', {itemId: item.id}) }}"
+                                                  class="d-flex align-items-center justify-content-center gap-2">
+                                                <input type="hidden" name="_token"
+                                                       value="{{ csrf_token('cart_update_' ~ item.id) }}">
+                                                <button type="submit" name="quantity"
+                                                        value="{{ item.quantity - 1 }}"
+                                                        class="btn btn-sm d-flex align-items-center justify-content-center"
+                                                        style="width:28px;height:28px;padding:0;border:1.5px solid #e0e0e8;border-radius:6px;background:#fff">
+                                                    <i class="bi bi-dash" style="font-size:.9rem"></i>
+                                                </button>
+                                                <span class="fw-700" style="min-width:1.2rem;text-align:center">
+                                                    {{ item.quantity }}
+                                                </span>
+                                                <button type="submit" name="quantity"
+                                                        value="{{ item.quantity + 1 }}"
+                                                        class="btn btn-sm d-flex align-items-center justify-content-center"
+                                                        style="width:28px;height:28px;padding:0;border:1.5px solid #e0e0e8;border-radius:6px;background:#fff"
+                                                        {% if item.quantity >= item.product.stock %}disabled{% endif %}>
+                                                    <i class="bi bi-plus" style="font-size:.9rem"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                        <td class="text-center fw-700" style="color:var(--cl-primary)">
+                                            {{ item.subtotalFormatted }}
+                                        </td>
+                                        <td class="pe-4 text-end">
+                                            <form method="post"
+                                                  action="{{ path('app_cart_remove', {itemId: item.id}) }}">
+                                                <input type="hidden" name="_token"
+                                                       value="{{ csrf_token('cart_remove_' ~ item.id) }}">
+                                                <button type="submit"
+                                                        class="btn btn-sm d-flex align-items-center justify-content-center"
+                                                        style="width:32px;height:32px;padding:0;border:none;background:#fdf2f2;border-radius:8px;color:#9c1b1b"
+                                                        title="Retirer">
+                                                    <i class="bi bi-trash3" style="font-size:.85rem"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            {# ── Récapitulatif ── #}
+            <div class="col-lg-4">
+                <div class="summary-card">
+                    <h5 class="fw-700 mb-4">Récapitulatif</h5>
+
+                    <div class="d-flex justify-content-between text-muted small mb-2">
+                        <span>{{ cart.countItems() }} article{{ cart.countItems() > 1 ? 's' : '' }}</span>
+                        <span>{{ cart.totalFormatted }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted small mb-3">
+                        <span>Livraison</span>
+                        <span class="fw-600" style="color:var(--cl-success)">Gratuite</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-3 mb-4"
+                         style="border-top:2px solid var(--cl-primary-pale)">
+                        <span class="fw-700">Total</span>
+                        <span class="summary-total">{{ cart.totalFormatted }}</span>
+                    </div>
+
+                    <button class="btn btn-primary-cl w-100 py-2 mb-2 opacity-50" disabled>
+                        <i class="bi bi-lock-fill me-1"></i>Commander
+                    </button>
+                    <p class="text-muted text-center mb-0" style="font-size:.75rem">
+                        La commande sera disponible prochainement.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    {% endif %}
+{% endblock %}
