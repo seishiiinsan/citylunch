@@ -63,12 +63,18 @@
                         {% endif %}
                     </span>
                     {% if product.stock > 0 %}
-                        <form method="post" action="{{ path('app_cart_add', {productId: product.id}) }}">
-                            <input type="hidden" name="_token" value="{{ csrf_token('cart_add') }}">
-                            <button type="submit" class="btn btn-dark btn-sm">
-                                <i class="bi bi-cart-plus me-1"></i>Ajouter
-                            </button>
-                        </form>
+                        {% if app.user %}
+                            <form method="post" action="{{ path('app_cart_add', {productId: product.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('cart_add') }}">
+                                <button type="submit" class="btn btn-dark btn-sm">
+                                    <i class="bi bi-cart-plus me-1"></i>Ajouter
+                                </button>
+                            </form>
+                        {% else %}
+                            <a href="{{ path('app_login') }}" class="btn btn-outline-dark btn-sm">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>Se connecter
+                            </a>
+                        {% endif %}
                     {% else %}
                         <button class="btn btn-secondary btn-sm" disabled>Épuisé</button>
                     {% endif %}
