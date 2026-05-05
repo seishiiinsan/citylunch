@@ -20,9 +20,4 @@ class SecurityController extends AbstractController
         throw new \LogicException('Intercepté par le firewall Symfony.');
     }
 
-    #[Route('/register', name: 'app_register', methods: ['GET', 'POST'])]
-    public function register(): Response
-    {
-        return new Response('Inscription — à implémenter (phase 4)', 200);
-    }
 }

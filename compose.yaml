@@ -39,7 +39,6 @@ services:
         condition: service_healthy
     environment:
       APP_ENV: ${APP_ENV:-dev}
-      APP_SECRET: ${APP_SECRET}
       DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-!ChangeMe!}@database:5432/${POSTGRES_DB:-app}?serverVersion=16&charset=utf8
       REDIS_URL: redis://redis:6379
 
