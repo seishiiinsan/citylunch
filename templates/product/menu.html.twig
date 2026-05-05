@@ -3,24 +3,32 @@
 {% block title %}Menu du {{ date|date('d/m/Y') }} — CityLunch{% endblock %}
 
 {% block body %}
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h2 fw-bold mb-0">Menu du jour</h1>
-            <p class="text-muted mb-0">{{ date|date('l d MMMM yyyy')|capitalize }}</p>
+
+    {# ── Hero ── #}
+    <div class="menu-hero">
+        <div class="date-label">
+            <i class="bi bi-calendar3 me-1"></i>
+            {{ dateFormatted }}
         </div>
+        <h1 class="fw-800 mb-1" style="font-size:1.75rem">Menu du jour</h1>
+        <p style="color:rgba(255,255,255,.55);font-size:.9rem;margin:0">
+            {{ plats|length }} plat{{ plats|length > 1 ? 's' : '' }} &bull;
+            {{ desserts|length }} dessert{{ desserts|length > 1 ? 's' : '' }}
+        </p>
     </div>
 
     {% if plats is empty and desserts is empty %}
         <div class="text-center py-5">
-            <i class="bi bi-emoji-frown display-1 text-muted"></i>
+            <div style="font-size:4rem">🍽️</div>
             <p class="lead mt-3 text-muted">Aucun plat disponible aujourd'hui.</p>
+            <p class="text-muted small">Revenez demain pour découvrir notre prochain menu.</p>
         </div>
     {% else %}
 
         {% if plats is not empty %}
-            <h2 class="h4 fw-semibold mb-3">
-                <i class="bi bi-egg-fried text-warning me-2"></i>Plats
-            </h2>
+            <div class="section-title">
+                <i class="bi bi-egg-fried" style="color:var(--cl-primary)"></i> Plats
+            </div>
             <div class="row g-4 mb-5">
                 {% for plat in plats %}
                     {{ _self.product_card(plat) }}
@@ -29,9 +37,9 @@
         {% endif %}
 
         {% if desserts is not empty %}
-            <h2 class="h4 fw-semibold mb-3">
-                <i class="bi bi-cake2 text-warning me-2"></i>Desserts
-            </h2>
+            <div class="section-title">
+                <i class="bi bi-cake2" style="color:#e8a838"></i> Desserts
+            </div>
             <div class="row g-4">
                 {% for dessert in desserts %}
                     {{ _self.product_card(dessert) }}
@@ -44,39 +52,54 @@
 
 {% macro product_card(product) %}
     <div class="col-sm-6 col-lg-4">
-        <div class="card h-100 shadow-sm border-0">
-            <div class="card-body d-flex flex-column">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <h5 class="card-title fw-semibold mb-0">{{ product.name }}</h5>
-                    <span class="badge bg-warning text-dark ms-2 flex-shrink-0">
-                        {{ product.priceFormatted }}
+        <div class="product-card h-100 d-flex flex-column">
+            <div class="product-card-header {{ product.type }}"></div>
+            <div class="p-4 d-flex flex-column flex-grow-1">
+                {# En-tête carte #}
+                <div class="d-flex justify-content-between align-items-start mb-1">
+                    <span class="type-pill {{ product.type }}">
+                        {{ product.type == 'plat' ? '🍽 Plat' : '🍮 Dessert' }}
                     </span>
+                    <span class="price-badge">{{ product.priceFormatted }}</span>
                 </div>
-                <p class="card-text text-muted small flex-grow-1">{{ product.description }}</p>
-                <div class="d-flex justify-content-between align-items-center mt-3">
-                    <span class="text-muted small">
+
+                {# Nom & description #}
+                <h5 class="fw-700 mt-2 mb-1" style="font-size:1rem;line-height:1.3">
+                    {{ product.name }}
+                </h5>
+                <p class="text-muted small flex-grow-1" style="line-height:1.5">
+                    {{ product.description }}
+                </p>
+
+                {# Footer carte #}
+                <div class="d-flex justify-content-between align-items-center mt-3 pt-3"
+                     style="border-top:1px solid #f0f0f5">
+                    <span class="small {{ product.stock <= 3 ? 'stock-low' : 'stock-ok' }}">
                         <i class="bi bi-box-seam me-1"></i>
-                        {% if product.stock > 0 %}
-                            {{ product.stock }} restant{{ product.stock > 1 ? 's' : '' }}
+                        {% if product.stock == 0 %}
+                            Épuisé
+                        {% elseif product.stock <= 3 %}
+                            Plus que {{ product.stock }} !
                         {% else %}
-                            <span class="text-danger">Épuisé</span>
+                            {{ product.stock }} disponibles
                         {% endif %}
                     </span>
+
                     {% if product.stock > 0 %}
                         {% if app.user %}
                             <form method="post" action="{{ path('app_cart_add', {productId: product.id}) }}">
                                 <input type="hidden" name="_token" value="{{ csrf_token('cart_add') }}">
-                                <button type="submit" class="btn btn-dark btn-sm">
-                                    <i class="bi bi-cart-plus me-1"></i>Ajouter
+                                <button type="submit" class="btn btn-primary-cl btn-sm px-3">
+                                    <i class="bi bi-bag-plus me-1"></i>Ajouter
                                 </button>
                             </form>
                         {% else %}
-                            <a href="{{ path('app_login') }}" class="btn btn-outline-dark btn-sm">
-                                <i class="bi bi-box-arrow-in-right me-1"></i>Se connecter
+                            <a href="{{ path('app_login') }}" class="btn btn-outline-cl btn-sm px-3">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>Connexion
                             </a>
                         {% endif %}
                     {% else %}
-                        <button class="btn btn-secondary btn-sm" disabled>Épuisé</button>
+                        <button class="btn btn-sm btn-light text-muted" disabled>Épuisé</button>
                     {% endif %}
                 </div>
             </div>

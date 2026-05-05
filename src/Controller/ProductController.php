@@ -24,10 +24,28 @@ class ProductController extends AbstractController
         $plats = array_filter($products, fn(Product $p) => $p->getType() === Product::TYPE_PLAT);
         $desserts = array_filter($products, fn(Product $p) => $p->getType() === Product::TYPE_DESSERT);
 
+        $today = new \DateTimeImmutable('today');
+
+        $days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+        $months = [
+            1 => 'janvier', 2 => 'février', 3 => 'mars', 4 => 'avril',
+            5 => 'mai', 6 => 'juin', 7 => 'juillet', 8 => 'août',
+            9 => 'septembre', 10 => 'octobre', 11 => 'novembre', 12 => 'décembre',
+        ];
+
+        $dateFormatted = sprintf(
+            '%s %s %s %s',
+            $days[(int) $today->format('w')],
+            $today->format('d'),
+            $months[(int) $today->format('n')],
+            $today->format('Y')
+        );
+
         return $this->render('product/menu.html.twig', [
-            'plats' => $plats,
-            'desserts' => $desserts,
-            'date' => new \DateTimeImmutable('today'),
+            'plats'         => $plats,
+            'desserts'      => $desserts,
+            'date'          => $today,
+            'dateFormatted' => $dateFormatted,
         ]);
     }
 }
