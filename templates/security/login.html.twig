@@ -1,0 +1,69 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion — CityLunch{% endblock %}
+
+{% block body %}
+    <div class="row justify-content-center">
+        <div class="col-md-5 col-lg-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <h1 class="h3 fw-bold mb-1">Connexion</h1>
+                    <p class="text-muted mb-4">Accédez à votre compte CityLunch.</p>
+
+                    {% if error %}
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle me-1"></i>
+                            {{ error.messageKey|trans(error.messageData, 'security') }}
+                        </div>
+                    {% endif %}
+
+                    <form method="post" action="{{ path('app_login') }}">
+                        <div class="mb-3">
+                            <label for="email" class="form-label fw-semibold">Adresse email</label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                class="form-control"
+                                value="{{ last_username }}"
+                                autocomplete="email"
+                                autofocus
+                                required
+                            >
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label fw-semibold">Mot de passe</label>
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                class="form-control"
+                                autocomplete="current-password"
+                                required
+                            >
+                        </div>
+
+                        <div class="mb-4 form-check">
+                            <input type="checkbox" class="form-check-input" id="remember_me" name="_remember_me">
+                            <label class="form-check-label text-muted" for="remember_me">Se souvenir de moi</label>
+                        </div>
+
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-dark btn-lg">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>Se connecter
+                            </button>
+                        </div>
+                    </form>
+
+                    <p class="text-center text-muted mb-0 small">
+                        Pas encore de compte ?
+                        <a href="{{ path('app_register') }}" class="text-dark fw-semibold">Créer un compte</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
