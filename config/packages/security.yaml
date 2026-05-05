@@ -29,7 +29,7 @@ security:
                 lifetime: 604800 # 7 jours
 
     access_control:
-        - { path: ^/cart, roles: ROLE_USER }
+        - { path: ^/cart, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:
