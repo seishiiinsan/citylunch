@@ -1,0 +1,110 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon panier — CityLunch{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2 fw-bold mb-0">Mon panier</h1>
+        <a href="{{ path('app_menu') }}" class="btn btn-outline-dark btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Continuer mes achats
+        </a>
+    </div>
+
+    {% if cart.items is empty %}
+        <div class="text-center py-5">
+            <i class="bi bi-cart-x display-1 text-muted"></i>
+            <p class="lead mt-3 text-muted">Votre panier est vide.</p>
+            <a href="{{ path('app_menu') }}" class="btn btn-dark mt-2">
+                Voir le menu du jour
+            </a>
+        </div>
+    {% else %}
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Produit</th>
+                                    <th class="text-center">Prix unit.</th>
+                                    <th class="text-center">Quantité</th>
+                                    <th class="text-center">Sous-total</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in cart.items %}
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="fw-semibold">{{ item.product.name }}</div>
+                                            <div class="text-muted small">
+                                                {{ item.product.type == 'plat' ? 'Plat' : 'Dessert' }}
+                                            </div>
+                                        </td>
+                                        <td class="text-center text-muted">
+                                            {{ item.product.priceFormatted }}
+                                        </td>
+                                        <td class="text-center" style="width: 180px">
+                                            <form method="post" action="{{ path('app_cart_update', {itemId: item.id}) }}" class="d-flex align-items-center justify-content-center gap-2">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('cart_update_' ~ item.id) }}">
+                                                <button type="submit" name="quantity" value="{{ item.quantity - 1 }}" class="btn btn-outline-secondary btn-sm px-2">
+                                                    <i class="bi bi-dash"></i>
+                                                </button>
+                                                <span class="fw-semibold" style="min-width: 1.5rem; text-align: center">{{ item.quantity }}</span>
+                                                <button type="submit" name="quantity" value="{{ item.quantity + 1 }}" class="btn btn-outline-secondary btn-sm px-2"
+                                                    {% if item.quantity >= item.product.stock %}disabled{% endif %}>
+                                                    <i class="bi bi-plus"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                        <td class="text-center fw-semibold">
+                                            {{ item.subtotalFormatted }}
+                                        </td>
+                                        <td class="pe-4 text-end">
+                                            <form method="post" action="{{ path('app_cart_remove', {itemId: item.id}) }}">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('cart_remove_' ~ item.id) }}">
+                                                <button type="submit" class="btn btn-link text-danger p-0" title="Supprimer">
+                                                    <i class="bi bi-trash3"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3">Récapitulatif</h5>
+                        <div class="d-flex justify-content-between mb-2 text-muted">
+                            <span>Articles ({{ cart.countItems() }})</span>
+                            <span>{{ cart.totalFormatted }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2 text-muted">
+                            <span>Livraison</span>
+                            <span class="text-success">Gratuite</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between fw-bold fs-5 mb-4">
+                            <span>Total</span>
+                            <span>{{ cart.totalFormatted }}</span>
+                        </div>
+                        <div class="d-grid">
+                            <button class="btn btn-warning btn-lg fw-semibold" disabled>
+                                <i class="bi bi-lock me-1"></i>Commander
+                            </button>
+                        </div>
+                        <p class="text-muted small text-center mt-2 mb-0">
+                            La commande n'est pas encore disponible.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
